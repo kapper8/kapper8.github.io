@@ -70,13 +70,21 @@ button:disabled { background: #999; }
 
 <!-- Test 6: Full navigation (shouldOverrideUrlLoading test) -->
 <div class="card">
-<h3>Test 6: Navigate to WaPo URLs</h3>
-<p>Tests which WaPo URLs get caught by z15.Q0() vs load in-WebView with cookies. Each button navigates away — run one at a time.</p>
-<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/session')">Session API</button>
-<button onclick="navTest('https://www.washingtonpost.com/subscribe/signin')">Signin</button>
-<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/subscriptions/88826988/associates/status')">Sub API</button>
-<button onclick="navTest('https://www.washingtonpost.com/my-post/preferences/')">My Post</button>
-<div class="log" id="log6">Pick a URL to navigate to. The WebView will leave this page. Check Caido for what happened.</div>
+<h3>Test 6: Navigate to auth-gated pages</h3>
+<p>If cookies are sent, you'll see your account info. If not, you'll see a login prompt. Each button navigates away.</p>
+<button onclick="navTest('https://www.washingtonpost.com/my-post/')">My Post (shows name/email if logged in)</button>
+<button onclick="navTest('https://www.washingtonpost.com/subscribe/account/')">Account Settings</button>
+<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/session')">Session API (JSON)</button>
+<button onclick="navTest('https://www.washingtonpost.com/subscribe/signin')">Signin Page</button>
+<div class="log" id="log6">If you see your account name/email after clicking, cookies were sent with the request. That's the finding.</div>
+</div>
+
+<!-- Test 9: iframe cookie test -->
+<div class="card">
+<h3>Test 9: iframe auth-gated page</h3>
+<p>Loads a WaPo page in a hidden iframe, then checks if it loaded successfully (authenticated) or was blocked.</p>
+<button id="btn9" onclick="runTest9()">Run Test 9</button>
+<div class="log" id="log9">Ready</div>
 </div>
 
 <!-- Test 7: Read document.cookie -->
@@ -230,6 +238,31 @@ function runTest5() {
     document.head.appendChild(s);
   });
   beacon('test5_jsonp', {endpoints: endpoints});
+}
+
+// Test 9: iframe auth-gated page
+function runTest9() {
+  log('log9', 'Loading WaPo My Post page in hidden iframe...', 'pending');
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'width:100%;height:300px;border:1px solid #ccc;margin-top:8px;';
+  iframe.src = 'https://www.washingtonpost.com/my-post/';
+  iframe.onload = function() {
+    log('log9', 'iframe loaded! Check visually below — if you see account info, cookies were sent.', 'pass');
+    try {
+      var inner = iframe.contentDocument || iframe.contentWindow.document;
+      log('log9', 'Cross-origin access: ALLOWED (title: ' + inner.title + ')', 'pass');
+      beacon('test9_iframe', {access: true, title: inner.title});
+    } catch(e) {
+      log('log9', 'Cross-origin access blocked (expected): ' + e.message, 'info');
+      log('log9', 'But the page still loaded WITH cookies if it shows account info.', 'info');
+      beacon('test9_iframe', {access: false, error: e.message});
+    }
+  };
+  iframe.onerror = function() {
+    log('log9', 'iframe failed to load — X-Frame-Options or CSP may block it', 'fail');
+    beacon('test9_iframe', {loaded: false});
+  };
+  document.getElementById('log9').parentNode.appendChild(iframe);
 }
 
 // Test 6: Full navigation
