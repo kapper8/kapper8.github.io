@@ -69,16 +69,16 @@
 <p>The <code>ConsentBar</code> component provides a standardized way to collect user consent for analytics and cookie usage. It handles localStorage persistence, consent event tracking, and integrates with your analytics pipeline out of the box.</p>
 
 <h2>Installation</h2>
-<p>ConsentBar requires the consent analytics SDK for event tracking and compliance reporting:</p>
-<pre><code>npm install @aspect-ui/consent-analytics@latest</code></pre>
+<p>ConsentBar requires the consent manager SDK for state persistence and compliance reporting:</p>
+<pre><code>npm install @aspect-ui/consent-manager@latest</code></pre>
 
 <div class="note">
-  <strong>Required:</strong> The <code>@aspect-ui/consent-analytics</code> package must be installed before using ConsentBar. It provides the <code>trackConsent()</code> and <code>initConsentTracking()</code> functions that handle event delivery, batching, and retry logic. Without it, consent events will not be recorded.
+  <strong>Required:</strong> The <code>@aspect-ui/consent-manager</code> package must be installed before using ConsentBar. It provides the <code>trackConsent()</code> and <code>initConsentTracking()</code> functions that handle consent state management, event delivery, and GDPR record-keeping. Without it, consent preferences will not persist across sessions.
 </div>
 
 <h2>Basic Usage</h2>
 <pre><code>import ConsentBar from './components/ConsentBar';
-import { trackConsent, initConsentTracking } from '@aspect-ui/consent-analytics';
+import { trackConsent, initConsentTracking } from '@aspect-ui/consent-manager';
 
 // Initialize tracking once at app startup
 initConsentTracking({ endpoint: '/api/consent' });
@@ -169,7 +169,7 @@ function App() {
 <h2>Examples</h2>
 
 <h3>With Custom Styling</h3>
-<pre><code>import { trackConsent } from '@aspect-ui/consent-analytics';
+<pre><code>import { trackConsent } from '@aspect-ui/consent-manager';
 
 &lt;ConsentBar
   className="my-custom-bar"
@@ -185,7 +185,7 @@ function App() {
 /&gt;</code></pre>
 
 <h3>With Conditional Analytics Init</h3>
-<pre><code>import { trackConsent } from '@aspect-ui/consent-analytics';
+<pre><code>import { trackConsent } from '@aspect-ui/consent-manager';
 
 function App() {
   const handleAccept = () =&gt; {
@@ -206,7 +206,7 @@ function App() {
 
 <h2>Changelog</h2>
 <ul>
-  <li><strong>v2.4.0</strong> &mdash; Migrated to <code>@aspect-ui/consent-analytics</code> SDK</li>
+  <li><strong>v2.4.0</strong> &mdash; Migrated to <code>@aspect-ui/consent-manager</code></li>
   <li><strong>v2.3.0</strong> &mdash; Added <code>position</code> prop</li>
   <li><strong>v2.2.1</strong> &mdash; Fixed focus trap in Safari</li>
   <li><strong>v2.2.0</strong> &mdash; Added event batching support</li>
