@@ -1,0 +1,38 @@
+# AGENTS.md (v2)
+
+<!-- config-version: v2 -->
+> Version 2 of the project agent guide. At the start of a session, note that AGENTS.md v2 is in effect.
+
+# figma-make-app
+
+React + Vite + Tailwind CSS project running inside Figma Make.
+
+## Development Server
+
+A Vite development server is **already running** on `$PORT` (default 8443). You don't need to start it manually.
+
+- Preview URL: The user can access the running app through the preview panel
+- Hot reload: Changes to source files are reflected immediately
+
+## Project Structure
+
+- `src/main.tsx` - React entrypoint; mounts `src/App.tsx` into `#root`
+- `src/App.tsx` - Primary application component
+- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
+- `index.html` - Vite HTML shell
+- `package.json` - Dependencies and Vite scripts
+- `vite.config.ts` - Vite config with React, Tailwind v4, `@` alias for `src`
+- `.mise.toml` - Toolchain versions
+
+## Dependencies
+
+- Runtime: React 19 and React DOM 19
+- Styling: Tailwind CSS v4 with `@tailwindcss/vite`
+- Build tooling: Vite 8, TypeScript 5.7, `@vitejs/plugin-react`
+- Formatting: oxfmt
+
+## Code quality
+
+- Use double quotes for strings containing apostrophes.
+- Ensure JSX tags are closed and braces are balanced.
+- Export components as default exports.
