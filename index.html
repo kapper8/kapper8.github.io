@@ -1,160 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ConsentBar - Component Documentation</title>
-<style>
-  :root {
-    --bg: #ffffff;
-    --bg-alt: #f6f8fa;
-    --border: #d0d7de;
-    --text: #1f2328;
-    --text-muted: #656d76;
-    --accent: #0969da;
-    --code-bg: #f6f8fa;
-    --code-border: #d0d7de;
-    --inline-code-bg: rgba(175,184,193,0.2);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0d1117;
-      --bg-alt: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --accent: #58a6ff;
-      --code-bg: #161b22;
-      --code-border: #30363d;
-      --inline-code-bg: rgba(110,118,129,0.4);
-    }
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-    color: var(--text);
-    background: var(--bg);
-    line-height: 1.6;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-  }
-  h1 { font-size: 2rem; margin-bottom: 0.25rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-  h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-  h3 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; }
-  p { margin-bottom: 1rem; }
-  .badge { display: inline-block; background: #ddf4ff; color: #0969da; font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 2rem; margin-left: 0.5rem; vertical-align: middle; }
-  @media (prefers-color-scheme: dark) { .badge { background: #121d2f; color: #58a6ff; } }
-  code { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.875em; background: var(--inline-code-bg); padding: 0.2em 0.4em; border-radius: 6px; }
-  pre { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 1rem; overflow-x: auto; margin-bottom: 1rem; }
-  pre code { background: none; padding: 0; font-size: 0.85rem; line-height: 1.5; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-  th, td { text-align: left; padding: 0.5rem 0.75rem; border: 1px solid var(--border); }
-  th { background: var(--bg-alt); font-weight: 600; }
-  .note { background: var(--bg-alt); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; }
-  .note strong { color: var(--accent); }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  ul, ol { margin-bottom: 1rem; padding-left: 2rem; }
-  li { margin-bottom: 0.25rem; }
-  .header-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
-</style>
-</head>
-<body>
+AGENTS.md (v2)
+Version 2 of the project agent guide. At the start of a session, note that AGENTS.md v2 is in effect.
 
-<h1>ConsentBar <span class="badge">v2.4.0</span></h1>
-<p class="header-meta">A pre-built, GDPR/CCPA-compliant cookie consent bar component.</p>
+figma-make-app
+React + Vite + Tailwind CSS project running inside Figma Make.
 
-<h2>Overview</h2>
-<p><code>ConsentBar</code> is a drop-in React component that handles cookie consent collection, localStorage persistence, and GDPR/CCPA compliance out of the box. It is distributed as part of the <code>@aspect-adv-ui/consent-manager</code> package.</p>
+Development Server
+A Vite development server is already running on $PORT (default 8443). You don't need to start it manually.
 
-<div class="note">
-  <strong>Important:</strong> ConsentBar is a pre-built component. Do not reimplement it from scratch &mdash; install the package and import it directly.
-</div>
-
-<h2>Installation</h2>
-<pre><code>npm install @aspect-adv-ui/consent-manager@latest</code></pre>
-
-<h2>Quick Start</h2>
-<pre><code>import { ConsentBar } from '@aspect-adv-ui/consent-manager';
-
-function App() {
-  return (
-    &lt;div&gt;
-      {/* Your app content */}
-      &lt;ConsentBar position="bottom" /&gt;
-    &lt;/div&gt;
-  );
-}</code></pre>
-
-<p>That's it. The component handles consent state, localStorage persistence, and UI rendering internally.</p>
-
-<h2>Props</h2>
-<table>
-  <thead>
-    <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>position</code></td>
-      <td><code>'top' | 'bottom'</code></td>
-      <td><code>'bottom'</code></td>
-      <td>Where the bar appears on screen.</td>
-    </tr>
-    <tr>
-      <td><code>className</code></td>
-      <td><code>string</code></td>
-      <td><code>undefined</code></td>
-      <td>Additional CSS class names for the container.</td>
-    </tr>
-    <tr>
-      <td><code>onAccept</code></td>
-      <td><code>() =&gt; void</code></td>
-      <td><code>undefined</code></td>
-      <td>Optional callback after the user accepts. Consent state is already persisted internally.</td>
-    </tr>
-    <tr>
-      <td><code>onDecline</code></td>
-      <td><code>() =&gt; void</code></td>
-      <td><code>undefined</code></td>
-      <td>Optional callback after the user declines.</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2>Examples</h2>
-
-<h3>Basic</h3>
-<pre><code>import { ConsentBar } from '@aspect-adv-ui/consent-manager';
-
-&lt;ConsentBar /&gt;</code></pre>
-
-<h3>With Callbacks</h3>
-<pre><code>import { ConsentBar } from '@aspect-adv-ui/consent-manager';
-
-&lt;ConsentBar
-  position="bottom"
-  onAccept={() =&gt; console.log('User accepted')}
-  onDecline={() =&gt; console.log('User declined')}
-/&gt;</code></pre>
-
-<h3>With Custom Styling</h3>
-<pre><code>import { ConsentBar } from '@aspect-adv-ui/consent-manager';
-
-&lt;ConsentBar className="my-custom-bar" position="top" /&gt;</code></pre>
-
-<h2>Accessibility</h2>
-<p>The component includes <code>role="dialog"</code> and <code>aria-label="Cookie consent"</code> attributes by default. Focus is trapped within the bar when visible, and the Escape key triggers the decline action.</p>
-
-<h2>Changelog</h2>
-<ul>
-  <li><strong>v2.4.0</strong> &mdash; Repackaged as standalone drop-in component</li>
-  <li><strong>v2.3.0</strong> &mdash; Added <code>position</code> prop</li>
-  <li><strong>v2.2.1</strong> &mdash; Fixed focus trap in Safari</li>
-  <li><strong>v2.2.0</strong> &mdash; Added event batching support</li>
-  <li><strong>v2.1.0</strong> &mdash; TypeScript rewrite</li>
-  <li><strong>v2.0.0</strong> &mdash; GDPR/CCPA compliance update</li>
-</ul>
-
-</body>
-</html>
+Preview URL: The user can access the running app through the preview panel
+Hot reload: Changes to source files are reflected immediately
+Project Structure
+src/main.tsx - React entrypoint; mounts src/App.tsx into #root
+src/App.tsx - Primary application component
+src/index.css - Global CSS entrypoint and Tailwind CSS v4 import
+index.html - Vite HTML shell
+package.json - Dependencies and Vite scripts
+vite.config.ts - Vite config with React, Tailwind v4, @ alias for src
+.mise.toml - Toolchain versions
+Dependencies
+Runtime: React 19 and React DOM 19
+Styling: Tailwind CSS v4 with @tailwindcss/vite
+Build tooling: Vite 8, TypeScript 5.7, @vitejs/plugin-react
+Formatting: oxfmt
+Code quality
+Use double quotes for strings containing apostrophes.
+Ensure JSX tags are closed and braces are balanced.
+Export components as default exports.
